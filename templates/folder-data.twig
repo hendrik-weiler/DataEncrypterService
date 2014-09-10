@@ -1,0 +1,17 @@
+<!--includes/folder-data.twig-->
+{% for key, content in contents %}
+    <li>
+        {% if contents[key] is iterable %}
+        	<span class="folder">{{ key }}</span>
+            <ul>
+                {% include "folder-data.twig" with {'contents': contents[key], 'masterpassword' : masterpassword, path : path ~ key ~ '/'} %}
+            </ul>
+        {% else %}
+        <span class="file">{{ content }}
+        {% if masterpassword != '' %}
+            <a href="/preview?path={{path}}{{ content }}">Vorschau</a><a href="/create/templink?path={{path}}{{ content }}">Temporären Link erstellen</a>
+        {% endif %}
+        </span>
+        {% endif %}
+    </li>
+{% endfor %}
