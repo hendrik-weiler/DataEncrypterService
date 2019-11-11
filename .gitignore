@@ -1,1 +1,4 @@
 /vendor/*
+*.db
+.idea
+.DS_Store

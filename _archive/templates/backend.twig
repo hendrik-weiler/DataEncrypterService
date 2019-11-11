@@ -1,0 +1,35 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+<div class="content">
+<div class="row">
+	<div class="col col-1-3">
+		<h2>1</h2>
+	</div>
+	<div class="col col-2-3">
+		{% if masterpassword != '' %}
+		<span>Masterpasswort für diese Session: {{ masterpassword }}</span>
+		{% else %}
+		<span>Für diese Session muss das Masterpasswort festgelegt, um Entschlüsseln zu ermöglichen.</span>
+		{% endif %}
+		<br>	
+		<form enctype='multipart/form-data' method="post" action="/set_masterpassword">
+		<p><input placeholder="Masterpassword" name="masterpassword"></p>
+		<input type="hidden" name="csrf_token" value="{{ token }}">
+		<input class="button" type="submit" name="submit" value="Festlegen">
+		</form>
+	</div>
+</div>
+<div class="line"></div>
+<div class="row">
+	<div class="col col-1-3">
+		<h2>2</h2>
+	</div>
+	<div class="col col-2-3">
+		<ul class="main-menu">
+		    {% include "folder-data.twig" with {'contents':contents, 'masterpassword' : masterpassword, 'path':'/'} only %}
+		</ul>
+	</div>
+</div>
+</div>
+{% endblock %}
