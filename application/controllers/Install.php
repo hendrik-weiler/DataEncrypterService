@@ -3,6 +3,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Install extends CI_Controller
 {
+    private function rrmdir($dir) {
+        if (is_dir($dir)) {
+            $objects = scandir($dir);
+            foreach ($objects as $object) {
+                if ($object != "." && $object != "..") {
+                    if (is_dir($dir."/".$object) && !is_link($dir."/".$object))
+                        rrmdir($dir."/".$object);
+                    else
+                        unlink($dir."/".$object);
+                }
+            }
+            rmdir($dir);
+        }
+    }
 
     public function __construct()
     {
@@ -18,13 +32,18 @@ class Install extends CI_Controller
     {
         $this->layout->data = array(
             'title' => 'Installation',
-            'sqliteEnabled' => extension_loaded('sqlite3')
+            'sqliteEnabled' => extension_loaded('sqlite3'),
+            'folderIsWriteable' => is_writable('.'),
+            'folderPath' => realpath(dirname(__FILE__).'/..')
         );
         $this->layout->render();
     }
 
     public function execute()
     {
+        // if its not writeable do not permit execution
+        if(!is_writable('.')) exit;
+
         $this->form_validation->set_rules('username', 'Username', 'trim|required|min_length[5]|max_length[12]');
         $this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[8]');
         $this->form_validation->set_rules('password_repeat', 'Password Confirmation', 'trim|required|matches[password]');
@@ -40,7 +59,14 @@ class Install extends CI_Controller
         }
         else
         {
-            $dbname = uniqid(rand(),true) . '.db';
+            if(is_dir('db')) {
+                $this->rrmdir('db');
+            }
+            mkdir('db');
+            file_put_contents('db/.htaccess', 'Order Allow,Deny'.PHP_EOL.'Deny from All');
+
+
+            $dbname = 'db/'.uniqid(rand(),true) . '.db';
 
             if (extension_loaded('sqlite3')) {
 
